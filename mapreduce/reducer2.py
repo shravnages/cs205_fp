@@ -1,15 +1,25 @@
 #!/usr/bin/python
 
 import sys
+import heapq
 
-dic_size=1000
+dic_size = 2
+lis = []
+for line in sys.stdin:
+    ct, wd = line.split('\t')
+    ct = int(ct)
+    
+    if len(lis) < dic_size:
+        heapq.heappush(lis, (ct, wd))
+        
+    else:
+        min_ct = lis[0][0]
+        
+        if min_ct < ct:
+            heapq.heapreplace(lis, (ct, wd))
 
-for i,line in enumerate(sys.stdin):
+lis = [w[1].strip() for w in lis]
+print(lis)
 
-	try:
-		ct,wd = line.split('\t')
-		print(wd)
-		if i >= dic_size: 
-			break
-	except:
-		pass
+
+

@@ -3,4 +3,4 @@ python ./mapper.py < data1.csv | sort | ./reducer.py
 
 python ./mapper.py < data1.csv | sort | ./reducer.py | ./mapper1.py | sort | ./reducer1.py
 
-python ./mapper.py < data1.csv | sort | ./reducer.py | ./mapper1.py | sort | ./reducer1.py | ./mapper2.py | sort |  ./reducer2.py
+python3 ./mapper.py < data1.csv | sort | ./reducer.py | ./mapper1.py | sort | ./reducer1.py | ./mapper2.py | sort |  ./reducer2.py

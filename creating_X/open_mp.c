@@ -24,12 +24,14 @@ const char* dictionary[] = {"and", "document", "first", "is", "one", "second", "
 //
 // const char *dictionary[] = {"a", "b", "c"};
 
-int c[NUM_LINES][DICT_LENGTH];
+
+/* Step 2: Creating X Matrix */
+int X[NUM_LINES][DICT_LENGTH];
 
 
   for (i=0; i<NUM_LINES; i++)
     for (j=0; j<DICT_LENGTH; j++)
-      c[i][j]= 0;
+      X[i][j]= 0;
 
 
   // get_time(&tstart);
@@ -52,7 +54,7 @@ int c[NUM_LINES][DICT_LENGTH];
 				  {
           // printf("yes\n");
           // printf("%d %d \n", i, j);
-					c[i][j] += 1;
+					X[i][j] += 1;
 				  }
         else
           {
@@ -71,7 +73,7 @@ int c[NUM_LINES][DICT_LENGTH];
 
   for (i=0; i<NUM_LINES; i++) {
       for (j=0; j<DICT_LENGTH; j++) {
-          printf("%d, ", c[i][j]);
+          printf("%d, ", X[i][j]);
       }
       printf("\n");
   }

@@ -6,26 +6,66 @@
 #include <ctype.h>
 // #include "timing.h"
 #define NUM_LINES 4
-#define DICT_LENGTH 9
 
 int main (int argc, char *argv[])
 {
 int	i, j, k;
+int DICT_LENGTH = 0;
 // timing_t tstart, tend;
-char corpus[][50] = {"this is the first document",
-    "this document is the second document",
-   "and this is the third one",
-    "is this the first document"};
+char corpus_test[5000] = "this is the first document this document is the second document and this is the third one is this the first document";
+/* Step 1: Creating dictionary */
+char *dict[500];
+char sentence[5000];
+strcpy(sentence, corpus_test);
+// printf("%s\n", sentence);
+// printf("new line.....\n");
+char *word = strtok(sentence, " ");
+while (word != NULL)
+  {
+  // printf("%s\n", word);
+  #pragma omp for shared(DICT_LENGTH) private(j)
+  int unique_words = 1;
+  for(j=0; j<DICT_LENGTH; j++)
+    {
+    char *dict_word = *(dict + j);
+    if (strcmp(word, dict_word) == 0)
+      {
+        // printf("Duplicate! %s\n", dict_word);
+      unique_words = 0;
+      break;
+      }
+    }
+  if (unique_words == 1)
+    {
+    // printf("%d\n", DICT_LENGTH);
+    // printf("%s\n", word);
+    dict[DICT_LENGTH] = word;
+    DICT_LENGTH++;
+    }
+  // printf("%d\n", DICT_LENGTH);
+  word = strtok(NULL, " ");
+  }
 
+printf("New dict\n");
+for (int k = 0; k < DICT_LENGTH; k++)
+  {
+  char *print_dict_word = *(dict + k);
+  printf("%s\n", print_dict_word);
+  }
+printf("Dictionary length: %d\n", DICT_LENGTH);
+printf("done\n");
+
+/* Step 2: Creating X Matrix */
+const char *corpus[50] = {"this is the first document",
+        "this document is the second document",
+        "and this is the third one",
+        "is this the first document"};
 const char* dictionary[] = {"and", "document", "first", "is", "one", "second", "the", "third", "this"};
 
 //const char** corpus = {"a b", "c a b"};
 // char corpus[][6] = {"b a", "c b a"};
 //
 // const char *dictionary[] = {"a", "b", "c"};
-
-
-/* Step 2: Creating X Matrix */
 int X[NUM_LINES][DICT_LENGTH];
 
 
@@ -41,7 +81,7 @@ int X[NUM_LINES][DICT_LENGTH];
     char sentence[1000];
     strcpy(sentence, corpus[i]);
 		char *word = strtok(sentence, " ");
-    printf("new line.....\n");
+    // printf("new line.....\n");
 		while (word != NULL)
       {
       #pragma omp for shared(DICT_LENGTH) private(j)

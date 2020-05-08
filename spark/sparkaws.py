@@ -10,20 +10,20 @@ from pyspark.sql.types import ArrayType, DoubleType
 import functools
 import numpy as np
 
-dic_size=100
+dic_size=20
 
 spark = SparkSession \
  .builder \
  .appName("word_process") \
- .config("spark.some.config.option", "some-value") \
+ .config("spark.some.config.option", "some-value")\
  .getOrCreate()
 
-#spark.conf.set("spark.dynamicAllocation.enabled", "false")
+#  .config("spark.dynamicAllocation.enabled", "false") \
 
 vector_udf = udf(lambda vector: vector.toArray().tolist(),ArrayType(DoubleType()))
 
 
-df = spark.read.format("csv").option("header", "false").load('data1.csv')
+df = spark.read.format("csv").option("header", "false").load('data.csv')
 
 # drop na rows
 df = df.na.drop()
@@ -43,7 +43,7 @@ df = df.withColumn("_c3s", lower(col("_c3s")))
 
 
 # tokenize
-tk = Tokenizer(inputCol="_c3s", outputCol="words")
+tk = RegexTokenizer(inputCol="_c3s", outputCol="words",pattern="\\W+")
 df1 = tk.transform(df)
 #df1.select("words").show(20, False)
 
@@ -70,12 +70,12 @@ df5 = df4.select(vector_udf('words2').alias('words3'))
 
 # split into columns
 df6 = df5.select(*(col('words3').getItem(i).alias(str(i)) for i in range(dic_size)))
-df6.coalesce(1).write.csv("outputlocal1/")
-#df6.write.format("csv").save("outputx11/")
+#df6.coalesce(1).write.csv("outputremote1/")
+df6.write.format("csv").save("outputremoate12/")
 
 #df7.show(truncate=False)
 
-# matrix multiplication
+# # matrix multiplication
 # colDFs = []
 # for c2 in df6.columns:
 # 	colDFs.append( df6.select( [ F.sum(df6[c1]*df6[c2]).alias('op_{0}'.format(i)) for i,c1 in enumerate(df6.columns) ] ) )
@@ -84,7 +84,7 @@ df6.coalesce(1).write.csv("outputlocal1/")
 # # mtxDF.show()
 
 # # mtxDF.write.format("csv").save('output2/')
-# mtxDF.coalesce(1).write.csv("outputres/")
+# mtxDF.coalesce(1).write.csv("outputfinal2/")
 
 
 

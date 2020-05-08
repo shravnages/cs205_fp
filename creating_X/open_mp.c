@@ -12,10 +12,10 @@ int main (int argc, char *argv[])
 {
 int	i, j, k;
 // timing_t tstart, tend;
-char corpus[][50] = {"This is the first document",
-    "This document is the second document",
-   "And this is the third one",
-    "Is this the first document"};
+char corpus[][50] = {"this is the first document",
+    "this document is the second document",
+   "and this is the third one",
+    "is this the first document"};
 
 const char* dictionary[] = {"and", "document", "first", "is", "one", "second", "the", "third", "this"};
 
@@ -36,11 +36,13 @@ int c[NUM_LINES][DICT_LENGTH];
   #pragma omp parallel shared(corpus, dictionary, NUM_LINES) private(i)
   for (i=0; i<NUM_LINES; i++)
     {
-		char *word = strtok(corpus[i], " ");
+    char sentence[1000];
+    strcpy(sentence, corpus[i]);
+		char *word = strtok(sentence, " ");
     printf("new line.....\n");
 		while (word != NULL)
       {
-      #pragma omp for shared(DICT_LENGTH) private()
+      #pragma omp for shared(DICT_LENGTH) private(j)
   		for(j=0; j<DICT_LENGTH; j++)
     		{
     		char *dict_word = *(dictionary + j);
@@ -48,17 +50,18 @@ int c[NUM_LINES][DICT_LENGTH];
 				// printf("Word: %s\n", word);
 				if (strcmp(word, dict_word) == 0)
 				  {
-          printf("yes\n");
-          printf("%d %d \n", i, j);
+          // printf("yes\n");
+          // printf("%d %d \n", i, j);
 					c[i][j] += 1;
 				  }
         else
           {
-          printf("no\n");
+          // printf("no\n");
           }
 		    }
         word = strtok(NULL, " ");
 	    }
+      printf("%s\n", corpus[i]);
     }
     // get_time(&tend);
 

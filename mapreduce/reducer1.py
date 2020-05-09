@@ -7,6 +7,9 @@ total = 0
 
 for line in sys.stdin:
     key, value = line.split('\t')
+
+    if key == '':
+    	continue
     
     if key != prev:
         if prev is not None:

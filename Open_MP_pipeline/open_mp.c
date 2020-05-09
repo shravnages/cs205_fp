@@ -5,7 +5,7 @@
 #include <time.h>
 #include <ctype.h>
 // #include "timing.h"
-#define NUM_LINES 29
+#define NUM_LINES 24102
 #define DICT_LENGTH 20
 
 int main (int argc, char *argv[])
@@ -79,7 +79,7 @@ FILE *file;
 char *filename;
 char line[1000];
 
-filename = "corpus.txt";
+filename = "part-00000.txt";
 file = fopen(filename, "r");
 if (file == NULL) {
   printf("ERROR: could not open input file\n");

@@ -23,8 +23,8 @@ char *word = strtok(sentence, " ");
 while (word != NULL)
   {
   // printf("%s\n", word);
-  #pragma omp for shared(DICT_LENGTH) private(j)
   int unique_words = 1;
+  #pragma omp for shared(DICT_LENGTH) private(j)
   for(j=0; j<DICT_LENGTH; j++)
     {
     char *dict_word = *(dict + j);
@@ -62,10 +62,6 @@ const char *corpus[50] = {"this is the first document",
         "is this the first document"};
 const char* dictionary[] = {"and", "document", "first", "is", "one", "second", "the", "third", "this"};
 
-//const char** corpus = {"a b", "c a b"};
-// char corpus[][6] = {"b a", "c b a"};
-//
-// const char *dictionary[] = {"a", "b", "c"};
 int X[NUM_LINES][DICT_LENGTH];
 
 
@@ -107,6 +103,7 @@ int X[NUM_LINES][DICT_LENGTH];
     }
     // get_time(&tend);
 
+    /* Step 3: Creating X Matrix */
 
 
   printf("*****************************************************\n");

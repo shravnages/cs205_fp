@@ -3,7 +3,7 @@
 import sys
 import heapq
 
-dic_size = 300
+dic_size = 20
 lis = []
 for line in sys.stdin:
     ct, wd = line.split('\t')

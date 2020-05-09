@@ -6,14 +6,16 @@ import sys
 
 
 def process_text(text):
-    res = re.sub("[^a-zA-Z' ]+",'',text).lower().strip().split()
+    res = text.strip().lower()
+    res = re.sub(r'^https?:\/\/.*[\r\n]*', '', res)
+    res = re.sub("[^a-zA-Z' ]+",'',res).split()
     res = [w for w in res if w not in stop_words]
     res = [w for w in res if w not in meaningless_words]
     return ' '.join(res)
 
 
 meaningless_words = set(['said', 'like', 'take', 'get', 'make', 'across', 'show',
-    'also', 'back', 'due'])
+    'also', 'back', 'due', 'also'])
 
 stop_words = set(['i', 'me', 'my', 'myself', 'we', 'our', 'ours', 'ourselves', 'you',
        "you're", "you've", "you'll", "you'd", 'your', 'yours', 'yourself',
@@ -39,12 +41,12 @@ stop_words = set(['i', 'me', 'my', 'myself', 'we', 'our', 'ours', 'ourselves', '
        'shan', "shan't", 'shouldn', "shouldn't", 'wasn', "wasn't",
        'weren', "weren't", 'won', "won't", 'wouldn', "wouldn't"])
 
-# if 'the' in stop_words:
-#     print('hahah')
 
 for i,line in enumerate(sys.stdin):
     line = re.sub( r'^\W+|\W+$', '', line)
     line = line.strip().split(',')
+    if len(line) <= 3:
+      continue
     text = line[3]
     text = process_text(text)
     if text != '':

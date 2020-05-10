@@ -1,7 +1,8 @@
 #include <iostream>
 #include <vector>
-#include <set>
+#include <map>
 #include <algorithm>
+#include <functional>
 
 #include <string.h>
 #include <ctype.h>
@@ -65,6 +66,11 @@ int indexOf(vector<string> dictionary, char word[1000]) {
 	return distance(dictionary.begin(), it);
 }
 
+// utility comparator function to pass to the sort() module
+bool sortByVal(const pair<string, int> &a, const pair<string, int> &b) {
+	return a.second > b.second;
+}
+
 int main(int argc, char *argv[]) {
 	int rank, size;
 	FILE *file;
@@ -72,8 +78,16 @@ int main(int argc, char *argv[]) {
 	int s;
 	int fileCounter;
 
+	double tStart1, tEnd1;
+	double tStartTotal, tEndTotal;
+
+	int dictSize;
+
 	FILE *dictionaryFile;
 	FILE *matrixFile;
+
+	vector<string> dictionary;
+	map<string, int> dictionaryCounts;
 
 	char *word;
 	int wordLen;
@@ -95,15 +109,15 @@ int main(int argc, char *argv[]) {
 	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 	MPI_Comm_size(MPI_COMM_WORLD, &size);
 
-	if (argc != 2) {
-		cout << "ERROR: give the input file as a command line argument" << endl;
+	if (argc != 3) {
+		cout << "ERROR: give the input file and dictionary size as a command line argument" << endl;
 		return 1;
 	}
 
 	filename = argv[1];
+	dictSize = atoi(argv[2]);
 
-	//Init dictionary on all nodes
-	vector<string> dictionary;
+	tStartTotal = MPI_Wtime();
 
 	//Create file on all nodes
 	file = fopen(filename, "r");
@@ -114,6 +128,8 @@ int main(int argc, char *argv[]) {
 
 	//Keep track of how long the file is
 	fileCounter = 0;
+
+	tStart1 = MPI_Wtime();
 
 	//Loop over every row in the file
 	while (fgets(line, 1000, file)) {
@@ -129,10 +145,11 @@ int main(int argc, char *argv[]) {
 				}
 			}
 
-			//If it is not in the dictionary add it
-			if (find(dictionary.begin(), dictionary.end(), word) == dictionary.end()) {
-				dictionary.push_back(word);
+			//Increment the count of this word
+			if (dictionaryCounts.find(word) == dictionaryCounts.end()) {
+				dictionaryCounts[word] = 0;
 			}
+			dictionaryCounts[word] += 1;
 
 			word = strtok(NULL, " ");
 		}
@@ -140,14 +157,32 @@ int main(int argc, char *argv[]) {
 		fileCounter++;
 	}
 
-	fclose(file);
-
-	if (rank == 0) {
-		cout << "Dictionary size: " << dictionary.size() << endl;
+	vector<pair<string, int>> vec;
+	// copy key-value pairs from the map to the vector
+	map<string, int> :: iterator it2;
+	for (it2 = dictionaryCounts.begin(); it2 != dictionaryCounts.end(); it2++) {
+		vec.push_back(make_pair(it2->first, it2->second));
 	}
+
+	//Sort by the number of occurances of each word and take the first num
+	sort(vec.begin(), vec.end(), sortByVal);
+	for (i1 = 0; i1 < dictSize; i1++) {
+		dictionary.push_back(vec[i1].first);
+	}
+
+	fclose(file);
 
 	//Wait for all nodes to catch up
 	MPI_Barrier(MPI_COMM_WORLD);
+
+	tEnd1 = MPI_Wtime();
+
+	if (rank == 0) {
+		cout << "Dictionary size: " << dictionary.size() << endl;
+		cout << "Dictionary time: " << tEnd1 - tStart1 << endl;
+	}
+
+	tStart1 = MPI_Wtime();
 
 	//Create the X matrix
 	r = fileCounter;
@@ -179,7 +214,9 @@ int main(int argc, char *argv[]) {
 
 			//Get the index in the dictionary
 			index = indexOf(dictionary, word);
-			x[fileCounter][index] += 1;
+			if (index != -1) {
+				x[fileCounter][index] += 1;
+			}
 
 			word = strtok(NULL, " ");
 		}
@@ -195,12 +232,16 @@ int main(int argc, char *argv[]) {
 
 	fclose(file);
 
+	//Wait for everything to catch up
+	MPI_Barrier(MPI_COMM_WORLD);
+
 	if (rank == 0) {
-		//Go through each node and receive the rows they processed
-		for (node = 1; node < size; node++) {
-			for (i1 = node; i1 < r; i1 += size) {
-				MPI_Recv(x[i1], c, MPI_INT, node, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+		//Go through and receive each row from the correct node
+		for (i1 = 1; i1 < r; i1++) {
+			if (i1 % size == 0) {
+				continue;
 			}
+			MPI_Recv(x[i1], c, MPI_INT, i1 % size, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 		}
 	} else {
 		//Send each row to the root node
@@ -209,11 +250,20 @@ int main(int argc, char *argv[]) {
 		}
 	}
 
+	tEnd1 = MPI_Wtime();
+
+	if (rank == ROOT) {
+		cout << "X matrix created and collected on root node" << endl;
+		cout << "X matrix time: " << tEnd1 - tStart1 << endl;
+	}
+
+	tStart1 = MPI_Wtime();
+
 	//Broadcast the full X matrix to each node
 	for (i1 = 0; i1 < r; i1++) {
 		MPI_Bcast(x[i1], c, MPI_INT, ROOT, MPI_COMM_WORLD);
 	}
-	
+
 	//Compute X^T * X
 	xt_x = init_matrix(c, c);
 	for (i1 = rank; i1 < c; i1 += size) {
@@ -232,10 +282,11 @@ int main(int argc, char *argv[]) {
 	//Collect X^T * X on the root node
 	if (rank == 0) {
 		//Go through each node and the rows it processed
-		for (node = 1; node < size; node++) {
-			for (i1 = node; i1 < c; i1 += size) {
-				MPI_Recv(xt_x[i1], c, MPI_INT, node, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+		for (i1 = 1; i1 < c; i1++) {
+			if (i1 % size == 0) {
+				continue;
 			}
+			MPI_Recv(xt_x[i1], c, MPI_INT, i1 % size, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 		}
 	} else {
 		//Send each row this node processed to the root
@@ -244,8 +295,14 @@ int main(int argc, char *argv[]) {
 		}
 	}
 
+	tEnd1 = MPI_Wtime();
+	tEndTotal = MPI_Wtime();
+
 	//Write out the dictionary and matrix to a file
-	if (rank == 0) {
+	if (rank == ROOT) {
+		cout << "X^T * X time: " << tEnd1 - tStart1 << endl;
+		cout << "Total time: " << tEndTotal - tStartTotal << endl;
+
 		//Write the dictionary
 		dictionaryFile = fopen("dictionary.txt", "w");
 		if (dictionaryFile == NULL) {

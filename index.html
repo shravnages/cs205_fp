@@ -36,6 +36,7 @@
       <div class="collumn collumn1">
         <div class="head"><span class="headline hl1">Introduction</span></p></div>
         <p>In this project, we are exploring the generation of co-occurrence graphs for coronavirus-related news articles. Basically, co-occurrence graphs demonstrate the frequency of the occurrence of two terms in the same news article across the entire news corpus. Each vertex in the graph is a word selected to generate the graph for. The size of the vertex in the graph represents how many times the corresponding word appears. The strength of the edge connecting two vertices represents how many times the two connecting words occur in the same news article. With an efficient implementation to generate such co-occurrence graphs and apply it to the rapidly increasing news articles and media coverage on coronavirus, we are able to detect the interconnections among different entities and specific topics in these news articles. This can be useful for researchers to analyze the news relating to coronavirus, which can be used to analyze trends and track the spread of the virus over time.</p>
+        <br><br><br><br>
         <div><img class="media" style="width:210%;" src="img/us_map.png"></div>
       </div>
       <div class="collumn collumn1">
@@ -226,6 +227,120 @@
            3) Website Credits: Theme originally created by Silke V. via <a href="https://codepen.io/silkine/pen/jldif">Codepen</a>.
          </div>
 
+         </div>
+      </div>
+
+      <div class="collumn collumn2" style="width: 99%;"><div class="head"><span class="headline hl1">Reproducibility</span></p></div>
+         <div class="collumn"></p>
+           <h3>MapReduce</h3>
+           <ol>
+           	<li>
+           		workflow to preprocess text data
+           		<br>
+				<b>Input</b>: raw news articles stored in HDFS
+				<br>
+				<b>Output</b>: NLP preprocessed and cleaned news articles
+				<br>
+				<b>Code file name</b>:
+				<br>
+				mapper.py
+				<br>
+				reducer.py
+				<br>
+				<b>Execution command</b>:
+				<br>
+				Mapreduce Streaming on AWS EMR
+           	</li>
+           	<li>
+           		workflow to count words:
+           		<br>
+				<b>Input</b>: NLP preprocessed and cleaned news articles
+				<br>
+				<b>Output</b>: (word, count) pairs
+				<br>
+				<b>Code file name</b>:
+				<br>
+				mapper1.py
+				<br>
+				reducer1.py
+				<br>
+				<b>Execution command</b>:
+				<br>
+				Mapreduce Streaming on AWS EMR
+           	</li>
+           	<li>
+           		workflow to search for the most frequent N words:
+           		<br>
+				<b>Input</b>: (word, count) pairs
+				<br>
+				<b>Output</b>: most frequent N words
+				<br>
+				<b>Code file name</b>:
+				<br>
+				mapper2.py
+				<br>
+				reducer2.py
+				<br>
+				<b>Execution command</b>:
+				<br>
+				Mapreduce Streaming on AWS EMR
+           	</li>
+           </ol>
+           <hr>
+           <h3>Spark</h3>
+			Workflow to preprocess data, create top words dictionary, and generate word count matrix
+			<br>
+			<b>Input</b>: raw news articles stored in HDFS
+			<br>
+			<b>Output</b>: 1. A dictionary containing the most frequent word in the NLP preprocessed and cleaned news articles. 2. Word count matrix based on the clean news articles and the dictionary
+			<br>
+			<b>Code file name</b>:
+			<br>
+			sparkaws.py
+			<br>
+			<b>Execution command</b>:
+			<br>
+			<code>spark-submit --num-executors X --executor-cores Y sparkaws.py</code>
+			<br>
+			(assuming a csv file named data.csv containing raw news article are already put onto HDFS)
+			<hr>
+		   <h3>MPI</h3>
+		    <b>MPI X<sup>T</sup>X (Gram) matrix</b>:
+		    <br>
+			<code>$ mpicc gram_mpi.c -o gram_mpi -O3</code>
+			<br>
+			<code>$ mpirun -np [num processes] ./gram_mpi [input csv file] [rows of input] [cols of input]</code>
+			<br><br>
+			Example:
+			<br>
+			<code>$ mpirun -np 8 ./gram_mpi m.csv 41771 20</code>
+			<br><br>
+			<b>MPI Total Pipeline</b>:
+			<br>
+			<code>$ mpic++ mpi_pipeline.cpp -o mpi_pipeline -O3</code>
+			<br>
+			OR
+			<br>
+			<code>$ mpic++ mpi_pipeline_hashmap.cpp -o mpi_pipeline -O3</code>
+			<br><br>
+			<code>$ mpirun -np [num processes] ./mpi_pipeline [input corpus] [dictionary size]</code>
+			<br><br>
+			Example:
+			<br>
+			<code>$ mpirun -np 8 ./mpi_pipeline corpus_big.txt 20</code>
+			<hr>
+			<h3>OpenMP</h3>
+			<b>OpenMP Word Occurrence Matrix</b>:
+			<br>
+			<code>$ gcc -fopenmp -O3 create_X_omp.c -o create_X</code>
+			<br>
+			<code>$ ./create_X corpus_big.txt > x_mat.txt</code>
+			<br><br>
+			<b>OpenMP X<sup>T</sup>X (Gram) matrix</b>
+			<br>
+			<code>$ gcc -fopenmp -O3 XT_X_omp.c -o XT_X</code>
+			<br>
+			<code>$ ./XT_X x_mat.txt</code>
          </div>
       </div>
      </div>

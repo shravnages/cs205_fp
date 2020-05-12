@@ -63,7 +63,7 @@ int main(int argc, char *argv[]) {
 	int node;
 
 	//The input file and matrix dimensions should be given as command line arguments
-	if (argc != 5) {
+	if (argc != 4) {
 		printf("ERROR: give the input file and matrix dimension as the first input");
 		return 0;
 	}

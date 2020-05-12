@@ -14,6 +14,10 @@
 
 
   <meta name="theme-color" content="#fafafa">
+
+  <link rel="icon" 
+      type="image/png" 
+      href="img/fav/favicon-16x16.png">
 </head>
 
 <body>
@@ -193,7 +197,7 @@
            The pipeline we would recommend is the Spark & MPI pipeline. We saw good performance out of both of these implementations and if we can work out the multi-node issues with MPI, it would allow for this pipeline to be extended to several nodes, allowing for larger dictionary sizes or a larger initial dataset of articles.
          </p>
          </div>
-         <div class="collumn collumn1" style="width:44%; border-bottom: 1px solid black;" ></p>
+         <div class="collumn collumn1" style="width:44%;" ></p>
          <p>
          	<h3>Future Work</h3>
          	This study yields lots of future work. The clear first step is to fix our issues with OpenMP and MPI. We could use a debugging tool like gdb to try to analyze what is happening with OpenMP, or just remove all parallelism and add it back piece by piece. There aren’t specific issues with MPI, but we need to find some way to optimize the transfer of data from worker nodes to the master node, by transferring less data somehow or optimizing the data that is transferred.

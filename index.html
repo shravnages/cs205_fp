@@ -1,0 +1,107 @@
+<!doctype html>
+<html class="no-js" lang="">
+
+<head>
+  <meta charset="utf-8">
+  <title>CS 205 Final Project</title>
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link rel="apple-touch-icon" href="icon.png">
+  <link rel="stylesheet" href="newspaper.css">
+
+  <link href='https://fonts.googleapis.com/css?family=Playfair+Display:400,700,900,400italic,700italic,900italic|Droid+Serif:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+
+
+  <meta name="theme-color" content="#fafafa">
+</head>
+
+<body>
+  <!--[if IE]>
+    <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience and security.</p>
+  <![endif]-->
+
+  <!-- Add your site or application content here -->
+  <div class="head">
+    <div class="headerobjectswrapper">
+      <div class="weatherforcastbox"><span style="font-style: italic;">Shravan Nageswaran, Jordan Turley,<br> Shucheng Yan.</span><br><span>Harvard University</span> </div>
+      <header style="font-size:40px;">CS 205 Final Project</header>
+    </div>
+
+    <div style="text-align: right;">Cambridge, MA | SPRING 2020 &nbsp; &nbsp; &nbsp;</div>
+    <div class="subhead" style="font-size:28px;">Parallelizing the Generation of Co-occurrence Matrices for Coronavirus News Articles</div>
+  </div>
+  <div class="content">
+    <div class="collumns">
+      <div class="collumn collumn1">
+        <div class="head"><span class="headline hl1">Introduction</span></p></div>
+        <p>In this project, we are exploring the generation of co-occurrence graphs for coronavirus-related news articles. Basically, co-occurrence graphs demonstrate the frequency of the occurrence of two terms in the same news article across the entire news corpus. Each vertex in the graph is a word selected to generate the graph for. The size of the vertex in the graph represents how many times the corresponding word appears. The strength of the edge connecting two vertices represents how many times the two connecting words occur in the same news article. With an efficient implementation to generate such co-occurrence graphs and apply it to the rapidly increasing news articles and media coverage on coronavirus, we are able to detect the interconnections among different entities and specific topics in these news articles. This can be useful for researchers to analyze the news relating to coronavirus, which can be used to analyze trends and track the spread of the virus over time.</p>
+        <figure class="figure">
+          <img class="media" src="img/cooccurrence.png" alt="">
+          <figcaption class="figcaption">Source: andrewtrick.com</figcaption>
+        </figure>
+        <p>There are four major steps to generate a co-occurrence matrix that can be directly used to create the co-occurrence graph. After news articles are read into the system, the first step is to do NLP text data preprocessing such as tokenization and removing the stopwords. The second step is to create a dictionary that contains all the words for which we want to generate the co-occurrence graph. In this project, we choose to use the most frequent words among the entire news corpus for the co-occurrence graph after excluding stopwords or words that do not have any real meaning if interpreted individually. The third step is to create a count matrix based on the word dictionary where we record for each news article, how many times each word in the dictionary occurs. The last step is to do a multiple manipulation of the count matrix with itself to generate the final co-occurrence matrix.</p>
+      </div>
+      <div class="collumn collumn1" style="width:50%;"><div class="head"><span class="headline hl1">Pipeline Designs</span></div>
+        <p>The four major stages in our pipeline were as follows: upon reducing our dataset, we first had to pre-process our text; this included
+        removing stop words such as "and" or "the" and lowercasing. We then could extract the unique words from the text, otherwise known as a
+        dictionary. However, for most purposes, we decided to use a fixed-length dictionary of the top 20 or 100 words across all news articles
+        to save computations. The next step was to create an occurrence matrix, showing which words appear in which article, which was multiplied
+        with itself to achieve a co-occurrence matrix for each article. We created numerous pipelines to process each of these four steps in parallel,
+        which was a permutation of four technologies we learned in the CS205 module: Spark, MapReduce, OpenMP, and MPI, as well as a sequential
+        implementation/use of a fixed value to generate the dictionary, as explained above. The pipelines we used were as follows:</p>
+        <figure class="figure">
+          <img class="media" src="img/pipelines.png" alt="">
+          <figcaption class="figcaption">We tested a total of 7 pipeline designs.</figcaption>
+        </figure>
+        <p>We created the parallel implementations for each of the stages in our pipeline and then tested each one individually. In particular, we saved
+        the data sources from the implementations involving MapReduce and Spark into an S3 bucket which was accessed in the latter stages.</p></div>
+      <div class="collumn collumn3" style="width:20%;"><div class="head"><span class="headline hl1">Additional Info</span></p></div><p>
+        dataset:
+        <br>
+        <br>
+        <br>
+        <br>
+        Credits: Theme originally created by Silke V. via <a href="https://codepen.io/silkine/pen/jldif">Codepen</a>.
+      </p></div>
+      <div class="collumn collumn2"><div class="head"><span class="headline hl1">Discussion and Future Steps</span></p></div>
+         <div class="collumn"></p>
+         <p style="border-bottom: 1px solid black; padding-bottom:10px;">We first explore using MapReduce to do NLP text preprocessing on the news articles. The NLP preprocessing tasks include removing duplicated news articles and news articles that only contain a URL, removing punctuations, converting sentences to lowercase, tokenization and removing stopwords. The mapReduce workflow is straightforward in the NLP text preprocessing stage. All the data preprocessing code is implemented in the mapper and the mapper will do most of the data preprocessing. The reducer mainly serves the role to remove duplicated news articles in the data set and emit a corpus of cleaned news articles.
+            <br><br>
+           We can see that as we increase the number of worker nodes, the running time gradually decreases. With a 4-worker node(m4.xlarge) architecture in AWS, MapReduce is able to preprocess all the 1 millions news articles within one minute.
+            <br><br>
+           At the same time, however, it is worth mentioning that there are two things that are not so desirable for using MapReduce to do NLP data preprocessing. First of all, many MapReduce service providers do not support running MapReduce jobs with pre-built NLP packages such as NLTK. As a result, developers will have to manually implement NLP processing code in the mapper or reducer instead of directly calling a package. Such manual implementation is simple for basic tasks such as removing stopwords, but not so easy to do with more advanced NLP techniques such as lemmatization.
+         </p>
+         <p style="border-bottom: 1px solid black; padding-bottom:10px;">
+           The second thing we explored with MapReduce is to create the word dictionary that contains the most frequent words in the entire news corpus. Through our performance testing, we realized that using MapReduce is not efficient for this task. There are two major overheads for using MapReduce in this stage.
+           <br><br>
+           The first overhead is that this task will require two passes of MapReduce. The first pass is to perform a word count for each word in the cleaned news corpus. The second pass is then to calculate the most frequent words based on the output from the first pass. This would be very time-consuming because the first pass will first output the data to a S3 budget, and then the second pass will need to read the data from the S3 bucket, and upload the data to its own HDFS before the second pass can start. The I/O cost here is very high.
+           <br><br>
+           Another major overhead is that only one reducer can be used during the second pass to generate the most frequent words among the entire news corpus. If we use more than one reducer in the second pass, each reducer will be generating its own most frequent words based on the inputs sent from their corresponding mappers.
+           <br><br>
+           As a result, we believe that MapReduce does not seem to be a good choice in creating the top word dictionary. We will explore other alternatives in the following parts.
+           <br><br>
+         </p>
+         <p style="border-bottom: 1px solid black; padding-bottom:10px;">
+           After MapReduce, we also explored using pySpark to implement our data workflow. We found that Spark is much more straightforward than MapReduce. We are able to do NLP-data preprocess, create the top words dictionary, and create the word count matrix all in the same spark program step by step.
+           <br><br>
+           Spark also has the well-developed Spark Machine Learning Library(MLlib) where many NLP techniques are already implemented. We are able to directly call these methods in our program instead of implementing them manually as in MapReduce.
+           <br><br>
+           With a 6-node(m4.xlarge) Spark architecture on AWS, we are able to complete preprocessing all the 1 million news articles, searching for the most frequent words for top words dictionary, and creating the word count matrix based on the dictionary in as few as around 73 seconds. This is a significant improvement over the MapReduce workflow.
+           <br><br>
+           The last step in creating the co-occurrence matrix is the matrix multiplication of the word count matrix with itself. Through our research, however, Spark is not a stand tool for scalable matrix multiplication. Using Spark for matrix multiplication is still an ongoing research in the academic field. As a result, we decided to use OpenMP and MPI for matrix multiplication during the last stage of our data pipeline.
+         </p>
+         <p style="border-bottom: 1px solid black; padding-bottom:10px;">
+
+         </p>
+         </div>
+      </div>
+     </div>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+  <script>window.jQuery || document.write('<script src="js/vendor/jquery-3.4.1.min.js"><\/script>')</script>
+  <script src="main.js"></script>
+</body>
+
+</html>

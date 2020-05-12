@@ -36,6 +36,7 @@
       <div class="collumn collumn1">
         <div class="head"><span class="headline hl1">Introduction</span></p></div>
         <p>In this project, we are exploring the generation of co-occurrence graphs for coronavirus-related news articles. Basically, co-occurrence graphs demonstrate the frequency of the occurrence of two terms in the same news article across the entire news corpus. Each vertex in the graph is a word selected to generate the graph for. The size of the vertex in the graph represents how many times the corresponding word appears. The strength of the edge connecting two vertices represents how many times the two connecting words occur in the same news article. With an efficient implementation to generate such co-occurrence graphs and apply it to the rapidly increasing news articles and media coverage on coronavirus, we are able to detect the interconnections among different entities and specific topics in these news articles. This can be useful for researchers to analyze the news relating to coronavirus, which can be used to analyze trends and track the spread of the virus over time.</p>
+        <div><img class="media" style="width:210%;" src="img/us_map.png"></div>
       </div>
       <div class="collumn collumn1">
         <figure class="figure">
@@ -47,16 +48,6 @@
         </p>
         <br>
         <br>
-        <div class="collumn collumn3">
-          <div class="head"><span class="headline hl6">Other Useful Links</span></p></div>
-          <a href="https://github.com/shravnages/cs205_fp">Github</a>
-          <br>
-          <br>
-          <a href="https://docs.google.com/presentation/d/1HV7dD333Q_mIiJLpTJmf-bv7FHP_-qBo59cGti8O6Hs/edit?usp=sharing">Presentation</a>
-          <br>
-          <br>
-          Website Credits: Theme originally created by Silke V. via <a href="https://codepen.io/silkine/pen/jldif">Codepen</a>.
-        </div>
         </p>
       </div>
       <div class="collumn collumn1" style="width:44%;"><div class="head"><span class="headline hl3">Data Pipelines</span></div>
@@ -66,9 +57,9 @@
           <figcaption class="figcaption">We tested a total of 7 pipeline designs.</figcaption>
         </figure>
         <p>Above is our pipeline implementation for the co-occurrence matrix generation process. Each row represents a data pipeline we explored. During each of the four steps, we tried different parallelization techniques we learned from the class. We would like to compare and explore which parallelization technique would be the most suitable and efficient for different stages of the process to generate co-occurrence matrices. The implementation was fairly straightforward since each part could be developed independently of the other pieces, then combined in the end.</p></div>
-      <div class="collumn collumn2" style="width:74%"><div class="head"><span class="headline hl1">Pipeline Performance</span></p></div>
+      <div class="collumn collumn2"><div class="head"><span class="headline hl1">Pipeline Performance</span></p></div>
          <div class="collumn"></p>
-           <img src="img/pipeline_brief.png" style="width:99%;">
+           <img class="media" src="img/pipeline_brief.png" style="width:99%;">
            <p>The four major stages in our pipeline were as follows: upon reducing our dataset, we first had to pre-process our text; this included
              removing stop words such as "and" or "the" and lowercasing. We then could extract the unique words from the text, otherwise known as a
              dictionary. However, for most purposes, we decided to use a fixed-length dictionary of the top 20 or 100 words across all news articles
@@ -157,7 +148,7 @@
 			<br><br>
 			We see that the trends in these two plots are identical. The hashmap is significantly faster than the array-based dictionary since the lookups are almost instant. We do see that the speedup is lower for the hashmap than the array, but this is likely because the hashmap version runs so much faster, so the speedup is overshadowed by the MPI overhead. We are already running in less than two seconds, so the speedup is not as relevant.
          </p>
-         <p style="border-bottom: 1px solid black; padding-bottom:10px;">
+         <p style="border-bottom: 1px solid black;">
          	<h3>MPI Co-Occurrence Matrix</h3>
          	Next, we create the co-occurrence matrix. If we let the word occurrence matrix be X, then the co-occurrence matrix is computed as XTX. We were actually able to do this with some clever indexing that allowed us to avoid explicitly calculating XT so that we didn’t have to waste extra memory.
          	<br><br>
@@ -184,9 +175,9 @@
          </div>
       </div>
 
-      <div class="collumn" style="width:20%; padding-top: 500px;"><div class="head"><span class="headline hl5">Discussion and Future Work</span></p></div>
-         <div class="collumn"></p>
-         <p style="border-bottom: 1px solid black; padding-bottom:10px;">
+      <div class="collumn"><div class="head"><span class="headline hl5">Discussion and Future Work</span></p></div>
+         <div class="collumn collumn1" style="width:44%;"></p>
+         <p>
          	<h3>Discussion</h3>
          	We can clearly see the application of calculating this co-occurrence matrix, and why using “big compute” resources is necessary. The co-occurrence matrix can show us how different words are correlated with each other. For example, we may want to see how the words “coronavirus” and “fear”, or “COVID-19” and “social distancing” correlate with each other. We may also like to see how these trends change over time. This could be used as a tool to track the trends of the virus. If we look at the matrix over time and see that the relationship between “coronavirus” and “hope” is increasing, then we may see that the spread of the virus is decreasing.
          	<br><br>
@@ -198,9 +189,11 @@
 			<br><br>
 			We saw that the speedup was more obvious when we used a larger dictionary size, since there was more runtime and more computations being done so that the overhead of the framework was minimal compared to the computations themselves. We also saw that there was a significant difference between the data structure choice for the dictionary. Trading off memory for faster lookups in a hashmap was worth it compared to using a simple array. However, this was somewhat negligible when compared to the time spent calculating the co-occurrence matrix. For the 100-size dictionary, the co-occurrence took over 90% of the runtime. For larger dictionaries, we can find the dictionary and word occurrence matrices fairly easily, but the co-occurrence graph can be infeasible to compute without more resources.
 			<br><br>
-			The pipeline we would recommend is the Spark+MPI pipeline. We saw good performance out of both of these implementations and if we can work out the multi-node issues with MPI, it would allow for this pipeline to be extended to several nodes, allowing for larger dictionary sizes or a larger initial dataset of articles.
+           The pipeline we would recommend is the Spark & MPI pipeline. We saw good performance out of both of these implementations and if we can work out the multi-node issues with MPI, it would allow for this pipeline to be extended to several nodes, allowing for larger dictionary sizes or a larger initial dataset of articles.
          </p>
-         <p style="border-bottom: 1px solid black; padding-bottom:10px;">
+         </div>
+         <div class="collumn collumn1" style="width:44%; border-bottom: 1px solid black;" ></p>
+         <p>
          	<h3>Future Work</h3>
          	This study yields lots of future work. The clear first step is to fix our issues with OpenMP and MPI. We could use a debugging tool like gdb to try to analyze what is happening with OpenMP, or just remove all parallelism and add it back piece by piece. There aren’t specific issues with MPI, but we need to find some way to optimize the transfer of data from worker nodes to the master node, by transferring less data somehow or optimizing the data that is transferred.
          	<br><br>
@@ -212,6 +205,27 @@
 			<br><br>
 			Finally, we would also like to try larger dictionary sizes, a larger subset from the coronavirus news dataset, or a different news article dataset altogether. These would all require more computational power than we used, but it would be interesting to analyze the pipeline when we can run it on a very large dataset across many nodes.
          </p>
+         <br>
+         <br>
+         <br>
+         <br>
+         <br>
+         <br>
+           &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp; &nbsp;
+           &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp; &nbsp;
+           &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp; &nbsp;
+           &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp; &nbsp;
+         <div class="collumn collumn3" style="width:50%">
+           <div class="head"><span class="headline hl6">Other Useful Links</span></p></div>
+           1) <a href="https://github.com/shravnages/cs205_fp">Github</a>
+           <br>
+           <br>
+           2) <a href="https://docs.google.com/presentation/d/1HV7dD333Q_mIiJLpTJmf-bv7FHP_-qBo59cGti8O6Hs/edit?usp=sharing">Presentation</a>
+           <br>
+           <br>
+           3) Website Credits: Theme originally created by Silke V. via <a href="https://codepen.io/silkine/pen/jldif">Codepen</a>.
+         </div>
+
          </div>
       </div>
      </div>

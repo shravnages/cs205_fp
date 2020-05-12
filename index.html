@@ -36,36 +36,47 @@
       <div class="collumn collumn1">
         <div class="head"><span class="headline hl1">Introduction</span></p></div>
         <p>In this project, we are exploring the generation of co-occurrence graphs for coronavirus-related news articles. Basically, co-occurrence graphs demonstrate the frequency of the occurrence of two terms in the same news article across the entire news corpus. Each vertex in the graph is a word selected to generate the graph for. The size of the vertex in the graph represents how many times the corresponding word appears. The strength of the edge connecting two vertices represents how many times the two connecting words occur in the same news article. With an efficient implementation to generate such co-occurrence graphs and apply it to the rapidly increasing news articles and media coverage on coronavirus, we are able to detect the interconnections among different entities and specific topics in these news articles. This can be useful for researchers to analyze the news relating to coronavirus, which can be used to analyze trends and track the spread of the virus over time.</p>
-        <div class="head"><span class="headline hl2">Dataset</span></p></div>
-          <p>The major data set we are working on is coming from <a href="https://blog.gdeltproject.org/now-live-updating-expanded-a-new-dataset-for-exploring-the-coronavirus-narrative-in-global-online-news/"> “The GDELT” Project </a>. The website aggregates coronavirus related news articles from the global media and updates them on a daily basis. There are already around 42 millions coronavirus news collected during the time of our analysis. We took a subset of around 1 million news articles for our program and stored the input data on a AWS S3 bucket.
-          </p>
-          Credits: Theme originally created by Silke V. via <a href="https://codepen.io/silkine/pen/jldif">Codepen</a>.
-          </p>
       </div>
-      <div class="collumn collumn1" style="border-left: 1px solid #f9f7f1;">
+      <div class="collumn collumn1">
         <figure class="figure">
           <img class="media" src="img/cooccurrence.png" alt="">
           <figcaption class="figcaption">Source: andrewtrick.com</figcaption>
         </figure>
-        <p>There are four major steps to generate a co-occurrence matrix that can be directly used to create the co-occurrence graph. After news articles are read into the system, the first step is to do NLP text data preprocessing such as tokenization and removing the stopwords. The second step is to create a dictionary that contains all the words for which we want to generate the co-occurrence graph. In this project, we choose to use the most frequent words among the entire news corpus for the co-occurrence graph after excluding stopwords or words that do not have any real meaning if interpreted individually. The third step is to create a count matrix based on the word dictionary where we record for each news article, how many times each word in the dictionary occurs. The last step is to do a multiple manipulation of the count matrix with itself to generate the final co-occurrence matrix.</p>
-        </p></div>
+        <div class="head"><span class="headline hl2">Dataset</span></p></div>
+        <p>The major data set we are working on is coming from <a href="https://blog.gdeltproject.org/now-live-updating-expanded-a-new-dataset-for-exploring-the-coronavirus-narrative-in-global-online-news/"> “The GDELT” Project </a>. The website aggregates coronavirus related news articles from the global media and updates them on a daily basis. There are already around 42 millions coronavirus news collected during the time of our analysis. We took a subset of around 1 million news articles for our program and stored the input data on a AWS S3 bucket.
+        </p>
+        <br>
+        <br>
+        <br>
+        <br>
+        <div class="collumn collumn3">
+          <div class="head"><span class="headline hl6">Other Useful Links</span></p></div>
+          Github:
+          <br>
+          Presentation:
+          <br>
+          Website Credits: Theme originally created by Silke V. via <a href="https://codepen.io/silkine/pen/jldif">Codepen</a>.
+        </div>
+        </p>
+      </div>
       <div class="collumn collumn1" style="width:44%;"><div class="head"><span class="headline hl3">Pipeline Designs</span></div>
-        <p>The four major stages in our pipeline were as follows: upon reducing our dataset, we first had to pre-process our text; this included
-        removing stop words such as "and" or "the" and lowercasing. We then could extract the unique words from the text, otherwise known as a
-        dictionary. However, for most purposes, we decided to use a fixed-length dictionary of the top 20 or 100 words across all news articles
-        to save computations. The next step was to create an occurrence matrix, showing which words appear in which article, which was multiplied
-        with itself to achieve a co-occurrence matrix for each article. We created numerous pipelines to process each of these four steps in parallel,
-        which was a permutation of four technologies we learned in the CS205 module: Spark, MapReduce, OpenMP, and MPI, as well as a sequential
-        implementation/use of a fixed value to generate the dictionary, as explained above. The pipelines we used were as follows:</p>
+        <p>There are four major steps to generate a co-occurrence matrix that can be directly used to create the co-occurrence graph. After news articles are read into the system, the first step is to do NLP text data preprocessing such as tokenization and removing the stopwords. The second step is to create a dictionary that contains all the words for which we want to generate the co-occurrence graph. In this project, we choose to use the most frequent words among the entire news corpus for the co-occurrence graph after excluding stopwords or words that do not have any real meaning if interpreted individually. The third step is to create a count matrix based on the word dictionary where we record for each news article, how many times each word in the dictionary occurs. The last step is to do a multiple manipulation of the count matrix with itself to generate the final co-occurrence matrix.</p></p>
         <figure class="figure">
           <img class="media" src="img/pipelines.png" alt="">
           <figcaption class="figcaption">We tested a total of 7 pipeline designs.</figcaption>
         </figure>
-        <p>We created the parallel implementations for each of the stages in our pipeline and then tested each one individually. In particular, we saved
-        the data sources from the implementations involving MapReduce and Spark into an S3 bucket which was accessed in the latter stages.</p></div>
+        <p>Below is our pipeline implementation for the co-occurrence matrix generation process. Each row represents a data pipeline we explored. During each of the four steps, we tried different parallelization techniques we learned from the class. We would like to compare and explore which parallelization technique would be the most suitable and efficient for different stages of the process to generate co-occurrence matrices. The implementation was fairly straightforward since each part could be developed independently of the other pieces, then combined in the end.</p></div>
       <div class="collumn collumn2"><div class="head"><span class="headline hl1">Pipeline Performance</span></p></div>
          <div class="collumn"></p>
-         <p style="border-bottom: 1px solid black; padding-bottom:10px;">
+           <img src="img/pipeline_brief.png" style="width:99%;">
+           <p>The four major stages in our pipeline were as follows: upon reducing our dataset, we first had to pre-process our text; this included
+             removing stop words such as "and" or "the" and lowercasing. We then could extract the unique words from the text, otherwise known as a
+             dictionary. However, for most purposes, we decided to use a fixed-length dictionary of the top 20 or 100 words across all news articles
+             to save computations. The next step was to create an occurrence matrix, showing which words appear in which article, which was multiplied
+             with itself to achieve a co-occurrence matrix for each article. We created numerous pipelines to process each of these four steps in parallel,
+             which was a permutation of four technologies we learned in the CS205 module: Spark, MapReduce, OpenMP, and MPI, as well as a sequential
+             implementation/use of a fixed value to generate the dictionary, as explained above. The pipelines we used were as follows:</p>
+           <p style="border-bottom: 1px solid black; padding-bottom:10px;">
          	<h3>MapReduce and NLP Text Preprocessing</h3>
          	We first explore using MapReduce to do NLP text preprocessing on the news articles. The NLP preprocessing tasks include removing duplicated news articles and news articles that only contain a URL, removing punctuations, converting sentences to lowercase, tokenization and removing stopwords. The mapReduce workflow is straightforward in the NLP text preprocessing stage. All the data preprocessing code is implemented in the mapper and the mapper will do most of the data preprocessing. The reducer mainly serves the role to remove duplicated news articles in the data set and emit a corpus of cleaned news articles.
          <br><br>
@@ -155,13 +166,13 @@
          </div>
       </div>
 
-      <div class="collumn collumn2"><div class="head"><span class="headline hl1">Discussion and Future Work</span></p></div>
+      <div class="collumn collumn2"><div class="head"><span class="headline hl5">Discussion and Future Work</span></p></div>
          <div class="collumn"></p>
          <p style="border-bottom: 1px solid black; padding-bottom:10px;">
          	<h3>Discussion</h3>
          	We can clearly see the application of calculating this co-occurrence matrix, and why using “big compute” resources is necessary. The co-occurrence matrix can show us how different words are correlated with each other. For example, we may want to see how the words “coronavirus” and “fear”, or “COVID-19” and “social distancing” correlate with each other. We may also like to see how these trends change over time. This could be used as a tool to track the trends of the virus. If we look at the matrix over time and see that the relationship between “coronavirus” and “hope” is increasing, then we may see that the spread of the virus is decreasing.
          	<br><br>
-			The high level process is rather simple. We find the most frequent words in the dataset and choose how many we want to track, then create the word occurrence matrix by counting the number of times one of the top words appears in the article, then simply calculate XTX which is the co-occurrence matrix. The full dataset of news articles, after the NLP we did, could be contained in a file that was only about 40MB. The file was about 350,000 lines long and no article contained more than 300 unique words. However, even with this simple problem and relatively small dataset, we clearly see the need for “big compute” resources. We saw that with a small dictionary size we could complete the process in just a few seconds, but when we increase the dictionary to just 100, the runtime jumps to over a minute on one core. One minute is not too significant of a runtime, but when we go to a dictionary size of 200, the runtime is almost 5 minutes. The runtime of calculating the co-occurrence matrix is O(n<sup>3), or more specifically, O(c<sup>2</sup>r) where c is the dictionary size and r is the number of articles. For a dictionary size of 100, this is about 3.5 billion operations, for 200 it jumps to about 14 billion operations, and for a dictionary size like 1000, this would be about 350 trillion operations, which is completely infeasible for a regular individual on their computer. If we assume 3.5 billion operations takes about a minute, then 350 trillion operations would take about 20 days on one core. I can’t imagine there are many people that want to run anything on their own computer for more than a few minutes or hours, but if this can be passed off to a cluster or a supercomputer that can finish this computation in a few hours, then this would be helpful for researchers to be able to get results more quickly and avoid waiting days for results.
+           The high level process is rather simple. We find the most frequent words in the dataset and choose how many we want to track, then create the word occurrence matrix by counting the number of times one of the top words appears in the article, then simply calculate XTX which is the co-occurrence matrix. The full dataset of news articles, after the NLP we did, could be contained in a file that was only about 40MB. The file was about 350,000 lines long and no article contained more than 300 unique words. However, even with this simple problem and relatively small dataset, we clearly see the need for “big compute” resources. We saw that with a small dictionary size we could complete the process in just a few seconds, but when we increase the dictionary to just 100, the runtime jumps to over a minute on one core. One minute is not too significant of a runtime, but when we go to a dictionary size of 200, the runtime is almost 5 minutes. The runtime of calculating the co-occurrence matrix is O(n<sup>3</sup>), or more specifically, O(c<sup>2</sup>r) where c is the dictionary size and r is the number of articles. For a dictionary size of 100, this is about 3.5 billion operations, for 200 it jumps to about 14 billion operations, and for a dictionary size like 1000, this would be about 350 trillion operations, which is completely infeasible for a regular individual on their computer. If we assume 3.5 billion operations takes about a minute, then 350 trillion operations would take about 20 days on one core. I can’t imagine there are many people that want to run anything on their own computer for more than a few minutes or hours, but if this can be passed off to a cluster or a supercomputer that can finish this computation in a few hours, then this would be helpful for researchers to be able to get results more quickly and avoid waiting days for results.
 			<br><br>
 			We did see some drawbacks or problems with some elements of our pipeline. We saw that MapReduce still has huge overheads even at this scale. MapReduce could be useful if we were processing gigabytes of data, but on this relatively small dataset the overhead overpowered the usefulness of MapReduce.
 			<br><br>

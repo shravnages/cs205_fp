@@ -36,13 +36,20 @@
       <div class="collumn collumn1">
         <div class="head"><span class="headline hl1">Introduction</span></p></div>
         <p>In this project, we are exploring the generation of co-occurrence graphs for coronavirus-related news articles. Basically, co-occurrence graphs demonstrate the frequency of the occurrence of two terms in the same news article across the entire news corpus. Each vertex in the graph is a word selected to generate the graph for. The size of the vertex in the graph represents how many times the corresponding word appears. The strength of the edge connecting two vertices represents how many times the two connecting words occur in the same news article. With an efficient implementation to generate such co-occurrence graphs and apply it to the rapidly increasing news articles and media coverage on coronavirus, we are able to detect the interconnections among different entities and specific topics in these news articles. This can be useful for researchers to analyze the news relating to coronavirus, which can be used to analyze trends and track the spread of the virus over time.</p>
+        <div class="head"><span class="headline hl2">Dataset</span></p></div>
+          <p>The major data set we are working on is coming from <a href="https://blog.gdeltproject.org/now-live-updating-expanded-a-new-dataset-for-exploring-the-coronavirus-narrative-in-global-online-news/"> “The GDELT” Project </a>. The website aggregates coronavirus related news articles from the global media and updates them on a daily basis. There are already around 42 millions coronavirus news collected during the time of our analysis. We took a subset of around 1 million news articles for our program and stored the input data on a AWS S3 bucket.
+          </p>
+          Credits: Theme originally created by Silke V. via <a href="https://codepen.io/silkine/pen/jldif">Codepen</a>.
+          </p>
+      </div>
+      <div class="collumn collumn1" style="border-left: 1px solid #f9f7f1;">
         <figure class="figure">
           <img class="media" src="img/cooccurrence.png" alt="">
           <figcaption class="figcaption">Source: andrewtrick.com</figcaption>
         </figure>
         <p>There are four major steps to generate a co-occurrence matrix that can be directly used to create the co-occurrence graph. After news articles are read into the system, the first step is to do NLP text data preprocessing such as tokenization and removing the stopwords. The second step is to create a dictionary that contains all the words for which we want to generate the co-occurrence graph. In this project, we choose to use the most frequent words among the entire news corpus for the co-occurrence graph after excluding stopwords or words that do not have any real meaning if interpreted individually. The third step is to create a count matrix based on the word dictionary where we record for each news article, how many times each word in the dictionary occurs. The last step is to do a multiple manipulation of the count matrix with itself to generate the final co-occurrence matrix.</p>
-      </div>
-      <div class="collumn collumn1" style="width:50%;"><div class="head"><span class="headline hl1">Pipeline Designs</span></div>
+        </p></div>
+      <div class="collumn collumn1" style="width:44%;"><div class="head"><span class="headline hl3">Pipeline Designs</span></div>
         <p>The four major stages in our pipeline were as follows: upon reducing our dataset, we first had to pre-process our text; this included
         removing stop words such as "and" or "the" and lowercasing. We then could extract the unique words from the text, otherwise known as a
         dictionary. However, for most purposes, we decided to use a fixed-length dictionary of the top 20 or 100 words across all news articles
@@ -56,14 +63,6 @@
         </figure>
         <p>We created the parallel implementations for each of the stages in our pipeline and then tested each one individually. In particular, we saved
         the data sources from the implementations involving MapReduce and Spark into an S3 bucket which was accessed in the latter stages.</p></div>
-      <div class="collumn collumn3" style="width:20%;"><div class="head"><span class="headline hl1">Additional Info</span></p></div><p>
-        dataset:
-        <br>
-        <br>
-        <br>
-        <br>
-        Credits: Theme originally created by Silke V. via <a href="https://codepen.io/silkine/pen/jldif">Codepen</a>.
-      </p></div>
       <div class="collumn collumn2"><div class="head"><span class="headline hl1">Pipeline Performance</span></p></div>
          <div class="collumn"></p>
          <p style="border-bottom: 1px solid black; padding-bottom:10px;">
